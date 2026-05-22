@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalle del Cliente - AGROSFT{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'clientes:cliente_list' %}">Clientes</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ cliente.get_full_name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información del Cliente -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white">
+                    <h3 class="fw-bold mb-0">
+                        <i class="fas fa-user-circle text-primary me-2"></i>Información del Cliente
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-bold text-uppercase mb-1">Nombre Completo</label>
+                            <p class="fs-5 fw-bold">{{ cliente.get_full_name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-bold text-uppercase mb-1">Teléfono</label>
+                            <p class="fs-5">
+                                {% if cliente.telefono %}
+                                    <i class="fas fa-phone text-success me-2"></i>{{ cliente.telefono }}
+                                {% else %}
+                                    <span class="text-muted">No registrado</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-muted small fw-bold text-uppercase mb-1">Dirección</label>
+                        <p class="fs-5">
+                            {% if cliente.direccion %}
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>{{ cliente.direccion }}
+                            {% else %}
+                                <span class="text-muted">No registrada</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-bold text-uppercase mb-1">Fecha de Registro</label>
+                            <p class="fs-5">
+                                <i class="fas fa-calendar-alt text-info me-2"></i>{{ cliente.fecha_creacion|date:"d/m/Y H:i" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-bold text-uppercase mb-1">Correo Electrónico</label>
+                            <p class="fs-5">
+                                <i class="fas fa-envelope text-warning me-2"></i>{{ cliente.correo }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-cogs text-secondary me-2"></i>Acciones
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'clientes:cliente_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a la Lista
+                        </a>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Editar Cliente
+                        </button>
+                        <button class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Eliminar Cliente
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="card shadow-sm border-0 rounded-4 mt-3">
+                <div class="card-header bg-white">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-chart-bar text-success me-2"></i>Estadísticas
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-3">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-shopping-cart text-success"></i>
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-6 border-end">
+                            <span class="text-muted small d-block">Compras</span>
+                            <span class="fs-4 fw-bold text-success">{{ total_compras }}</span>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted small d-block">Ventas</span>
+                            <span class="fs-4 fw-bold text-warning">{{ total_ventas }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
