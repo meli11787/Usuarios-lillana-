@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load ventas_extras %}
+
+{% block title %}Detalle de Solicitud #{{ solicitud.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'ventas:solicitud_list' %}" class="btn btn-light rounded-circle me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="mb-1 d-flex align-items-center gap-2">
+                Solicitud #{{ solicitud.id }}
+                <span class="badge fs-6 rounded-pill" style="background-color: var(--accent-color); color: white;"><i class="fas fa-inbox me-1"></i>{{ solicitud.estado|title }}</span>
+            </h2>
+            <p class="text-muted mb-0">Solicitud de compra de <strong>{{ solicitud.comprador_nombre }}</strong></p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-lg h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0" style="color: var(--primary-color)"><i class="fas fa-info-circle me-2"></i>Información General</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 pt-0">
+                            <span class="text-muted small d-block">Comprador</span>
+                            <span class="fw-bold">{{ solicitud.comprador_nombre }}</span>
+                            <br><small class="text-muted">{{ solicitud.comprador_email }}</small>
+                            <br><small class="text-success"><i class="fab fa-whatsapp"></i> {{ solicitud.comprador_telefono }}</small>
+                        </li>
+                        <li class="list-group-item px-0">
+                            <span class="text-muted small d-block">Fecha</span>
+                            <span class="fw-bold">{{ solicitud.fecha|date:"d/m/Y H:i"|default:'N/A' }}</span>
+                        </li>
+                        <li class="list-group-item px-0">
+                            <span class="text-muted small d-block">Mis Productos en esta Solicitud</span>
+                            <span class="fw-bold">{{ solicitud.total_productos_mios }}</span>
+                        </li>
+                        <li class="list-group-item px-0 border-bottom-0 pb-0">
+                            <span class="text-muted small d-block">Descripción</span>
+                            <p class="mb-0">{{ solicitud.descripcion|default:"Sin descripción." }}</p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-white border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Total Estimado:</span>
+                        <span class="fs-4 fw-bold" style="color: var(--secondary-color)">${{ solicitud.total_estimado|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-lg">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0" style="color: var(--primary-color)"><i class="fas fa-box me-2"></i>Productos Solicitados</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-4 py-3">Producto</th>
+                                    <th class="px-4 py-3 text-center">Cantidad</th>
+                                    <th class="px-4 py-3 text-end">Precio Unit.</th>
+                                    <th class="px-4 py-3 text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for producto in productos %}
+                                <tr>
+                                    <td class="px-4 py-3 align-middle">
+                                        <div class="fw-bold">{{ producto.id_producto_usuario.id_producto.nombre }}</div>
+                                        <small class="text-muted">{{ producto.id_producto_usuario.id_producto.id_categoria.nombre }}</small>
+                                    </td>
+                                    <td class="px-4 py-3 align-middle text-center">
+                                        <span class="badge" style="background-color: var(--primary-color)">{{ producto.cantidad|abs_value|floatformat:0 }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 align-middle text-end fw-semibold">
+                                        ${{ producto.id_producto_usuario.precio|floatformat:2 }}
+                                    </td>
+                                    <td class="px-4 py-3 align-middle text-end fw-bold text-success">
+                                        <span style="color: var(--secondary-color)">${{ producto.cantidad|abs_value|multiply:producto.id_producto_usuario.precio|floatformat:2 }}</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        <i class="fas fa-box-open fa-2x mb-2"></i>
+                                        <p class="mb-0">No hay productos tuyos en esta solicitud.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <!-- Acciones para el vendedor -->
+                <div class="d-flex flex-wrap gap-2">
+                    {% if solicitud.estado != 'aceptada' and solicitud.estado != 'rechazada' and solicitud.estado != 'vendida' %}
+                        <button type="button" class="btn text-white" style="background-color: var(--primary-color)" data-bs-toggle="modal" data-bs-target="#aceptarModal">
+                            <i class="fas fa-check me-2"></i> Aceptar Solicitud
+                        </button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rechazarModal">
+                            <i class="fas fa-times me-2"></i> Rechazar Solicitud
+                        </button>
+                    {% elif solicitud.estado == 'aceptada' %}
+                        <button type="button" class="btn text-white" style="background-color: var(--secondary-color)" data-bs-toggle="modal" data-bs-target="#vendidoModal">
+                            <i class="fas fa-check-circle me-2"></i> Marcar como Vendido
+                        </button>
+                    {% endif %}
+                    
+                    <a href="{% url 'ventas:solicitud_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Volver a Solicitudes
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Modal para aceptar solicitud -->
+            <div class="modal fade" id="aceptarModal" tabindex="-1" aria-labelledby="aceptarModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="aceptarModalLabel">Aceptar Solicitud</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro de que deseas aceptar esta solicitud de compra? Se transferirá al módulo de ventas con estado "en proceso".
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <a href="{% url 'ventas:solicitud_aceptar' solicitud.id %}" class="btn text-white" style="background-color: var(--primary-color)">Aceptar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal para rechazar solicitud -->
+            <div class="modal fade" id="rechazarModal" tabindex="-1" aria-labelledby="rechazarModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="rechazarModalLabel">Rechazar Solicitud</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro de que deseas rechazar esta solicitud de compra?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <a href="{% url 'ventas:solicitud_rechazar' solicitud.id %}" class="btn btn-danger">Rechazar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal para marcar como vendido -->
+            <div class="modal fade" id="vendidoModal" tabindex="-1" aria-labelledby="vendidoModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="vendidoModalLabel">Marcar como Vendido</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro de que deseas marcar esta solicitud como vendida? Esta acción cambiará el estado de la venta a "vendido".
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <a href="{% url 'ventas:solicitud_marcar_vendido' solicitud.id %}" class="btn text-white" style="background-color: var(--secondary-color)">Marcar como Vendido</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

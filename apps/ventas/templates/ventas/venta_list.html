@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado de Ventas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-file-invoice-dollar me-2" style="color: var(--primary-color)"></i>Historial de Ventas</h2>
+            <p class="text-muted mb-0">Gestione y visualice las ventas registradas en el sistema.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-lg">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-4 py-3">ID Venta</th>
+                            <th class="px-4 py-3">Cliente</th>
+                            <th class="px-4 py-3">Fecha</th>
+                            <th class="px-4 py-3">Estado</th>
+                            <th class="px-4 py-3 text-end">Total</th>
+                            <th class="px-4 py-3 text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in ventas %}
+                        <tr>
+                            <td class="px-4 py-3 align-middle fw-bold text-muted">#{{ venta.id }}</td>
+                            <td class="px-4 py-3 align-middle">
+                                <div class="fw-bold">{{ venta.cliente.nombres }} {{ venta.cliente.apellidos }}</div>
+                                <small class="text-success"><i class="fab fa-whatsapp"></i> {{ venta.cliente.telefono|default:'No proporcionado' }}</small>
+                            </td>
+                            <td class="px-4 py-3 align-middle">{{ venta.fecha_venta|date:"d/m/Y H:i"|default:'N/A' }}</td>
+                            <td class="px-4 py-3 align-middle">
+                                {% if venta.estado == 'vendida' %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Vendido</span>
+                                {% elif venta.estado == 'cancelada' %}
+                                    <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Cancelada</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>En proceso</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 align-middle text-end fw-semibold text-success">${{ venta.total|floatformat:2 }}</td>
+                            <td class="px-4 py-3 align-middle text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{% url 'ventas:venta_detail' venta.id %}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                        <i class="fas fa-eye me-1"></i> Ver
+                                    </a>
+                                    {% if venta.puede_marcar_vendido %}
+                                    <form method="post" action="{% url 'ventas:venta_marcar_vendida' venta.id %}" class="d-inline" onsubmit="return confirm('¿Confirmar que esta venta fue completada?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill">
+                                            <i class="fas fa-check me-1"></i> Marcar Vendido
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if venta.puede_cancelar %}
+                                    <form method="post" action="{% url 'ventas:venta_cancelar' venta.id %}" class="d-inline" onsubmit="return confirm('¿Estás seguro de cancelar esta venta?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger rounded-pill">
+                                            <i class="fas fa-times me-1"></i> Cancelar
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-box-open fa-3x mb-3 text-light"></i>
+                                <p class="mb-0">No hay ventas registradas.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
