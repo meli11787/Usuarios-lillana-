@@ -1,16 +1,25 @@
 from django import forms
+from django.core.validators import RegexValidator
 from apps.inventario.models import Producto, Categoria, ProductoUsuario, Estado
+
+
+NOMBRE_PRODUCTO_REGEX = RegexValidator(
+    regex=r'^[A-Za-z0-9ÁÉÍÓÚáéíóúÜüÑñ\s\-\_]+$',
+    message='El nombre solo puede contener letras, números, espacios, guiones y guiones bajos.'
+)
 
 
 class ProductoForm(forms.Form):
     # Campos para el catálogo maestro de productos (tblproductos)
     nombre = forms.CharField(
         max_length=45,  # Coincide con BD VARCHAR(45)
+        validators=[NOMBRE_PRODUCTO_REGEX],
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del producto'})
     )
     descripcion = forms.CharField(
+        max_length=500,
+        required=False,
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción del producto'}),
-        required=False
     )
     id_categoria = forms.ModelChoiceField(
         queryset=Categoria.objects.filter(activo=True),
@@ -37,6 +46,7 @@ class ProductoForm(forms.Form):
     precio = forms.DecimalField(
         max_digits=10,
         decimal_places=2,
+        min_value=0.01,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Precio unitario'})
     )
     id_estado = forms.ModelChoiceField(
@@ -72,6 +82,14 @@ class ProductoForm(forms.Form):
             self.fields['cantidad'].initial = initial_data.get('cantidad', 0)
             self.fields['precio'].initial = initial_data.get('precio', 0)
             self.fields['id_estado'].initial = initial_data.get('id_estado')
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre', '').strip()
+        return nombre
+
+    def clean_descripcion(self):
+        descripcion = self.cleaned_data.get('descripcion', '')
+        return descripcion.strip() if descripcion else descripcion
 
 
 class ProductoBusquedaForm(forms.Form):

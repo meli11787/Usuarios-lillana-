@@ -1,0 +1,60 @@
+@startuml ControllerServiceRepository
+title Patrón Controller-Service-Repository
+package "Web Layer" {
+  class AuthController
+  class ProductoController
+}
+package "Domain Layer" {
+  class AuthService
+  class ProductoService
+}
+package "Persistence Layer" {
+  class AuthRepository
+  class ProductoRepository
+}
+AuthController --> AuthService
+ProductoController --> ProductoService
+AuthService --> AuthRepository
+ProductoService --> ProductoRepository
+AuthRepository --> Tblusuarios
+ProductoRepository --> Tblproductos
+@enduml
+
+@startuml TemplateMethod
+title Patrón Template Method
+abstract class BaseController {
+  +dispatch(request)
+  +authenticate()
+  +render(template, context)
+}
+class LoginView
+class RegistroView
+LoginView --|> BaseController
+RegistroView --|> BaseController
+@enduml
+
+@startuml Strategy
+title Patrón Strategy
+interface AuthStrategy {
+  +authenticate(credentials)
+}
+class TblusuariosAuthBackend
+class GoogleOAuth2Backend
+interface AuthStrategy <|.. TblusuariosAuthBackend
+interface AuthStrategy <|.. GoogleOAuth2Backend
+class AuthService
+AuthService --> AuthStrategy : usa
+@enduml
+
+@startuml Proxy
+title Patrón Proxy
+interface UserRepository {
+  +get_user(id)
+  +save_user(user)
+}
+class UserDbRepository
+class UserCacheProxy
+UserCacheProxy ..|> UserRepository
+UserDbRepository ..|> UserRepository
+UserCacheProxy --> UserDbRepository
+@enduml

@@ -28,6 +28,7 @@
 |---|---|---|
 | 01 | [[01-VISION-GENERAL]] | Descripción del proyecto, objetivos, alcance y ficha técnica SENA |
 | 02 | [[02-ARQUITECTURA]] | Arquitectura del sistema, capas, patrones de diseño y decisiones técnicas |
+| - | [[design_patterns.puml]] | Patrones de diseño y diagramas PlantUML relacionados con la arquitectura |
 | 03 | [[03-BASE-DATOS]] | Esquema de base de datos MariaDB, modelos Django, triggers y relaciones |
 | 04 | [[04-MODULO-USUARIOS]] | Autenticación, registro, perfil, términos y condiciones |
 | 05 | [[05-MODULO-INVENTARIO]] | Catálogo de productos, CRUD, marketplace y aprobación |

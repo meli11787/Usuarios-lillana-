@@ -2,6 +2,8 @@
 
 > Arquitectura del sistema, módulos, patrones de diseño y decisiones técnicas.  
 > **Metodología**: Specification-Driven Development (SDD)
+> 
+> Archivo adicional: [[design_patterns.puml]] contiene diagramas PlantUML complementarios para los patrones de diseño mencionados.
 
 ---
 
@@ -329,6 +331,8 @@ Configurado vía `social-auth-app-django`:
 | **Proxy** | Models como proxy de tablas externas | Todos los modelos con `managed = False` |
 | **Session Facade** | Carrito encapsulado en sesión | `Carrito(request)` |
 | **Observer** | Vue reactive state | `ref()`, `computed()`, `watch()` |
+
+> Diagramas PlantUML disponibles en `docs/design_patterns.puml`.
 
 ---
 
